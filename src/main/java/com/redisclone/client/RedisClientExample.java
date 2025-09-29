@@ -3,9 +3,6 @@ package com.redisclone.client;
 import java.io.*;
 import java.net.Socket;
 
-/**
- * Example Redis client demonstrating how to interact with the Redis clone server
- */
 public class RedisClientExample {
     
     public static void main(String[] args) {
@@ -25,50 +22,42 @@ public class RedisClientExample {
             
             System.out.println("Connected to Redis clone server at " + host + ":" + port);
             
-            // Test PING command
             System.out.println("\n=== Testing PING ===");
             sendCommand(out, in, "*1\r\n$4\r\nPING\r\n");
-            
-            // Test string operations
+        
             System.out.println("\n=== Testing String Operations ===");
             sendCommand(out, in, "*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n");
             sendCommand(out, in, "*2\r\n$3\r\nGET\r\n$3\r\nkey\r\n");
             sendCommand(out, in, "*2\r\n$6\r\nEXISTS\r\n$3\r\nkey\r\n");
             
-            // Test hash operations
             System.out.println("\n=== Testing Hash Operations ===");
             sendCommand(out, in, "*4\r\n$4\r\nHSET\r\n$4\r\nuser\r\n$4\r\nname\r\n$4\r\nJohn\r\n");
             sendCommand(out, in, "*4\r\n$4\r\nHSET\r\n$4\r\nuser\r\n$3\r\nage\r\n$2\r\n30\r\n");
             sendCommand(out, in, "*3\r\n$4\r\nHGET\r\n$4\r\nuser\r\n$4\r\nname\r\n");
             sendCommand(out, in, "*2\r\n$7\r\nHGETALL\r\n$4\r\nuser\r\n");
             
-            // Test list operations
             System.out.println("\n=== Testing List Operations ===");
             sendCommand(out, in, "*3\r\n$5\r\nLPUSH\r\n$4\r\nlist\r\n$5\r\nworld\r\n");
             sendCommand(out, in, "*3\r\n$5\r\nLPUSH\r\n$4\r\nlist\r\n$5\r\nhello\r\n");
             sendCommand(out, in, "*4\r\n$6\r\nLRANGE\r\n$4\r\nlist\r\n$1\r\n0\r\n$2\r\n-1\r\n");
             sendCommand(out, in, "*2\r\n$4\r\nLPOP\r\n$4\r\nlist\r\n");
             
-            // Test set operations
             System.out.println("\n=== Testing Set Operations ===");
             sendCommand(out, in, "*3\r\n$4\r\nSADD\r\n$4\r\nset\r\n$6\r\nmember1\r\n");
             sendCommand(out, in, "*3\r\n$4\r\nSADD\r\n$4\r\nset\r\n$6\r\nmember2\r\n");
             sendCommand(out, in, "*2\r\n$8\r\nSMEMBERS\r\n$4\r\nset\r\n");
             sendCommand(out, in, "*3\r\n$9\r\nSISMEMBER\r\n$4\r\nset\r\n$6\r\nmember1\r\n");
             
-            // Test sorted set operations
             System.out.println("\n=== Testing Sorted Set Operations ===");
             sendCommand(out, in, "*4\r\n$4\r\nZADD\r\n$6\r\nleader\r\n$1\r\n1\r\n$6\r\nplayer1\r\n");
             sendCommand(out, in, "*4\r\n$4\r\nZADD\r\n$6\r\nleader\r\n$1\r\n2\r\n$6\r\nplayer2\r\n");
             sendCommand(out, in, "*3\r\n$6\r\nZSCORE\r\n$6\r\nleader\r\n$6\r\nplayer1\r\n");
             sendCommand(out, in, "*4\r\n$6\r\nZRANGE\r\n$6\r\nleader\r\n$1\r\n0\r\n$2\r\n-1\r\n");
             
-            // Test expiration
             System.out.println("\n=== Testing Expiration ===");
             sendCommand(out, in, "*5\r\n$3\r\nSET\r\n$4\r\ntemp\r\n$5\r\nvalue\r\n$2\r\nEX\r\n$1\r\n1\r\n");
             sendCommand(out, in, "*2\r\n$3\r\nTTL\r\n$4\r\ntemp\r\n");
             
-            // Test server info
             System.out.println("\n=== Testing Server Info ===");
             sendCommand(out, in, "*1\r\n$4\r\nINFO\r\n");
             
@@ -90,7 +79,6 @@ public class RedisClientExample {
                 System.out.println("Command: " + command.replaceAll("\r\n", "\\\\r\\\\n"));
                 System.out.println("Response: " + response);
                 
-                // Handle bulk string responses
                 if (response.startsWith("$") && !response.equals("$-1")) {
                     try {
                         int length = Integer.parseInt(response.substring(1));
@@ -99,11 +87,9 @@ public class RedisClientExample {
                             System.out.println("Value: " + value);
                         }
                     } catch (NumberFormatException e) {
-                        // Not a bulk string length
                     }
                 }
                 
-                // Handle array responses
                 if (response.startsWith("*")) {
                     try {
                         int count = Integer.parseInt(response.substring(1));
@@ -112,7 +98,6 @@ public class RedisClientExample {
                             String element = in.readLine();
                             System.out.println("  [" + i + "]: " + element);
                             
-                            // Handle nested bulk strings
                             if (element.startsWith("$") && !element.equals("$-1")) {
                                 try {
                                     int length = Integer.parseInt(element.substring(1));
@@ -121,12 +106,11 @@ public class RedisClientExample {
                                         System.out.println("    Value: " + value);
                                     }
                                 } catch (NumberFormatException e) {
-                                    // Not a bulk string length
                                 }
                             }
                         }
                     } catch (NumberFormatException e) {
-                        // Not an array count
+                        System.out.println(response);
                     }
                 }
             }

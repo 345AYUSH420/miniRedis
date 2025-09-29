@@ -1,11 +1,6 @@
 package com.redisclone.protocol;
 
 import java.io.*;
-
-/**
- * Redis Serialization Protocol (RESP) writer
- * Supports RESP2 protocol format
- */
 public class RespWriter {
     private final PrintWriter writer;
     

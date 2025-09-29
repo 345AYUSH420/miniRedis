@@ -14,42 +14,26 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-/**
- * Simple persistence manager for Redis clone
- * Implements basic RDB-like functionality
- */
 public class PersistenceManager {
     private final String rdbFile;
     
     public PersistenceManager(String dataDir) {
         this.rdbFile = Paths.get(dataDir, "dump.rdb").toString();
-        
-        // Create data directory if it doesn't exist
         try {
             Files.createDirectories(Paths.get(dataDir));
         } catch (IOException e) {
             throw new RuntimeException("Failed to create data directory: " + dataDir, e);
         }
     }
-    
-    /**
-     * Save the Redis store to disk
-     */
     public void save(RedisStore store) throws IOException {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(rdbFile))) {
-            // Write header
             out.writeUTF("REDIS_CLONE_RDB");
-            out.writeInt(1); // Version
-            
-            // Write store size
+            out.writeInt(1);
+
             out.writeInt(store.size());
-            
-            // Write each key-value pair
             for (Map.Entry<String, RedisValue> entry : store.entrySet()) {
                 String key = entry.getKey();
                 RedisValue value = entry.getValue();
-                
-                // Skip expired keys
                 if (value.isExpired()) {
                     continue;
                 }
@@ -61,18 +45,13 @@ public class PersistenceManager {
             out.flush();
         }
     }
-    
-    /**
-     * Load the Redis store from disk
-     */
     public void load(RedisStore store) throws IOException {
         Path rdbPath = Paths.get(rdbFile);
         if (!Files.exists(rdbPath)) {
-            return; // No existing data file
+            return; 
         }
-        
+
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(rdbFile))) {
-            // Read header
             String header = in.readUTF();
             if (!"REDIS_CLONE_RDB".equals(header)) {
                 throw new IOException("Invalid RDB file format");
@@ -82,16 +61,10 @@ public class PersistenceManager {
             if (version != 1) {
                 throw new IOException("Unsupported RDB version: " + version);
             }
-            
-            // Read store size
             int size = in.readInt();
-            
-            // Read each key-value pair
             for (int i = 0; i < size; i++) {
                 String key = in.readUTF();
                 RedisValue value = readRedisValue(in);
-                
-                // Only load non-expired keys
                 if (!value.isExpired()) {
                     store.put(key, value);
                 }
@@ -141,8 +114,6 @@ public class PersistenceManager {
                 }
                 break;
         }
-        
-        // Write expiration info
         if (value.getExpiresAt() != null) {
             out.writeBoolean(true);
             out.writeLong(value.getExpiresAt().getEpochSecond());
@@ -206,7 +177,6 @@ public class PersistenceManager {
         
         RedisValue redisValue = new RedisValue(type, value);
         
-        // Read expiration info
         boolean hasExpiration = in.readBoolean();
         if (hasExpiration) {
             long expirationEpoch = in.readLong();
@@ -215,24 +185,13 @@ public class PersistenceManager {
         
         return redisValue;
     }
-    
-    /**
-     * Check if a data file exists
-     */
     public boolean hasDataFile() {
         return Files.exists(Paths.get(rdbFile));
     }
-    
-    /**
-     * Delete the data file
-     */
     public void deleteDataFile() throws IOException {
         Files.deleteIfExists(Paths.get(rdbFile));
     }
-    
-    /**
-     * Get the size of the data file in bytes
-     */
+
     public long getDataFileSize() throws IOException {
         Path rdbPath = Paths.get(rdbFile);
         if (!Files.exists(rdbPath)) {

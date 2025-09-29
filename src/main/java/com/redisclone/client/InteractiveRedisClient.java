@@ -4,9 +4,6 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
-/**
- * Interactive Redis client for testing custom commands
- */
 public class InteractiveRedisClient {
     
     public static void main(String[] args) {
@@ -123,8 +120,6 @@ public class InteractiveRedisClient {
         }
         
         StringBuilder resp = new StringBuilder();
-        
-        // Start array
         resp.append("*").append(parts.size()).append("\r\n");
         
         for (String part : parts) {
@@ -196,11 +191,9 @@ public class InteractiveRedisClient {
                 else if (response.startsWith("+")) {
                     System.out.println(response.substring(1));
                 }
-                // Handle integer responses
                 else if (response.startsWith(":")) {
                     System.out.println("(integer) " + response.substring(1));
                 }
-                // Handle error responses
                 else if (response.startsWith("-")) {
                     System.out.println("(error) " + response.substring(1));
                 }

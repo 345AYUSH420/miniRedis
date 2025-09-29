@@ -5,10 +5,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
-
-/**
- * Represents a Redis value that can hold different data types
- */
 public class RedisValue {
     private final DataType type;
     private final Object value;
@@ -60,8 +56,6 @@ public class RedisValue {
         long remaining = expiresAt.getEpochSecond() - Instant.now().getEpochSecond();
         return Math.max(0, remaining);
     }
-    
-    // Type-specific getters
     @SuppressWarnings("unchecked")
     public String getStringValue() {
         if (type != DataType.STRING) {

@@ -129,7 +129,7 @@ public class RespParserTest {
     
     @Test
     void testParseUnexpectedEOF() throws IOException {
-        String input = "+OK"; // Missing \r\n
+        String input = "+OK";
         RespParser parser = new RespParser(new ByteArrayInputStream(input.getBytes()));
         
         assertThrows(EOFException.class, () -> parser.parse());

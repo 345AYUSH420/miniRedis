@@ -4,10 +4,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Redis Serialization Protocol (RESP) parser
- * Supports RESP2 protocol format
- */
 public class RespParser {
     
     public static class RespValue {
@@ -81,15 +77,15 @@ public class RespParser {
         char type = (char) firstByte;
         
         switch (type) {
-            case '+': // Simple String
+            case '+':
                 return parseSimpleString();
-            case '-': // Error
+            case '-':
                 return parseError();
-            case ':': // Integer
+            case ':':
                 return parseInteger();
-            case '$': // Bulk String
+            case '$':
                 return parseBulkString();
-            case '*': // Array
+            case '*':
                 return parseArray();
             default:
                 throw new IOException("Unknown RESP type: " + type);
@@ -132,7 +128,7 @@ public class RespParser {
         
         int length = Integer.parseInt(lengthStr);
         if (length == -1) {
-            return new RespValue(RespValue.Type.BULK_STRING, null); // NULL bulk string
+            return new RespValue(RespValue.Type.BULK_STRING, null);
         }
         
         char[] buffer = new char[length];
@@ -140,8 +136,6 @@ public class RespParser {
         if (bytesRead != length) {
             throw new EOFException("Unexpected end of stream");
         }
-        
-        // Read the trailing CRLF
         reader.readLine();
         
         return new RespValue(RespValue.Type.BULK_STRING, new String(buffer));
@@ -155,7 +149,7 @@ public class RespParser {
         
         int length = Integer.parseInt(lengthStr);
         if (length == -1) {
-            return new RespValue(RespValue.Type.ARRAY, null); // NULL array
+            return new RespValue(RespValue.Type.ARRAY, null);
         }
         
         List<RespValue> array = new ArrayList<>();

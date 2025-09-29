@@ -9,10 +9,6 @@ import com.redisclone.protocol.RespWriter;
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
-
-/**
- * Redis server implementation with TCP socket handling
- */
 public class RedisServer {
     private final int port;
     private final RedisStore store;
@@ -30,7 +26,6 @@ public class RedisServer {
         this.commandProcessor = new CommandProcessor(store);
         this.persistenceManager = new PersistenceManager("./data");
         
-        // Load existing data
         try {
             persistenceManager.load(store);
             System.out.println("Loaded existing data from disk");
@@ -45,10 +40,8 @@ public class RedisServer {
         cleanupExecutor = Executors.newScheduledThreadPool(1);
         persistenceExecutor = Executors.newScheduledThreadPool(1);
         
-        // Schedule cleanup of expired keys every 10 seconds
         cleanupExecutor.scheduleAtFixedRate(store::cleanupExpired, 10, 10, TimeUnit.SECONDS);
         
-        // Schedule persistence save every 60 seconds
         persistenceExecutor.scheduleAtFixedRate(() -> {
             try {
                 persistenceManager.save(store);
@@ -120,7 +113,6 @@ public class RedisServer {
             }
         }
         
-        // Save data before shutdown
         try {
             persistenceManager.save(store);
             System.out.println("Final data save completed");
@@ -154,7 +146,6 @@ public class RedisServer {
                         commandProcessor.processCommand(command, writer);
                         writer.flush();
                     } catch (EOFException e) {
-                        // Client disconnected
                         break;
                     } catch (IOException e) {
                         System.err.println("Error processing command: " + e.getMessage());
@@ -179,7 +170,6 @@ public class RedisServer {
     public static void main(String[] args) {
         int port = 6379; // Default Redis port
         
-        // Parse command line arguments
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("--port") && i + 1 < args.length) {
                 try {
@@ -188,7 +178,7 @@ public class RedisServer {
                     System.err.println("Invalid port number: " + args[i + 1]);
                     System.exit(1);
                 }
-                i++; // Skip next argument
+                i++;
             } else if (args[i].equals("--help")) {
                 System.out.println("Redis Clone Server");
                 System.out.println("Usage: java RedisServer [--port <port>] [--help]");
@@ -200,7 +190,6 @@ public class RedisServer {
         
         RedisServer server = new RedisServer(port);
         
-        // Add shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("\nShutting down server...");
             server.stop();

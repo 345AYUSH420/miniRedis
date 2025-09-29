@@ -8,9 +8,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 
-/**
- * Core Redis store implementation with thread-safe operations
- */
 public class RedisStore {
     private final ConcurrentHashMap<String, RedisValue> store;
     private final ConcurrentHashMap<String, Instant> expirationTimes;
@@ -20,7 +17,6 @@ public class RedisStore {
         this.expirationTimes = new ConcurrentHashMap<>();
     }
     
-    // String operations
     public String set(String key, String value) {
         store.put(key, new RedisValue(RedisValue.DataType.STRING, value));
         expirationTimes.remove(key); // Clear any existing expiration
@@ -90,7 +86,7 @@ public class RedisStore {
     public long ttl(String key) {
         RedisValue value = store.get(key);
         if (value == null) {
-            return -2; // Key doesn't exist
+            return -2;
         }
         if (value.isExpired()) {
             store.remove(key);
@@ -99,8 +95,6 @@ public class RedisStore {
         }
         return value.getTTL();
     }
-    
-    // Hash operations
     public long hset(String key, String field, String value) {
         RedisValue redisValue = store.get(key);
         ConcurrentHashMap<String, String> hash;
@@ -151,7 +145,6 @@ public class RedisStore {
         return deleted;
     }
     
-    // List operations
     public long lpush(String key, String... values) {
         RedisValue redisValue = store.get(key);
         CopyOnWriteArrayList<String> list;
@@ -231,7 +224,6 @@ public class RedisStore {
         return new ArrayList<>(list.subList((int) start, (int) stop + 1));
     }
     
-    // Set operations
     public long sadd(String key, String... members) {
         RedisValue redisValue = store.get(key);
         CopyOnWriteArraySet<String> set;
@@ -285,8 +277,6 @@ public class RedisStore {
         }
         return removed;
     }
-    
-    // Sorted Set operations
     public long zadd(String key, double score, String member) {
         RedisValue redisValue = store.get(key);
         ConcurrentSkipListSet<RedisValue.ScoredMember> sortedSet;
@@ -300,7 +290,6 @@ public class RedisStore {
             sortedSet = redisValue.getSortedSetValue();
         }
         
-        // Remove existing member if it exists
         sortedSet.removeIf(sm -> sm.getMember().equals(member));
         
         // Add new member
@@ -346,13 +335,10 @@ public class RedisStore {
                 .map(RedisValue.ScoredMember::getMember)
                 .collect(Collectors.toList());
     }
-    
-    // Utility methods
     private boolean matchesPattern(String key, String pattern) {
         if (pattern.equals("*")) {
             return true;
         }
-        // Simple pattern matching - can be enhanced for more complex patterns
         return key.matches(pattern.replace("*", ".*"));
     }
     
@@ -388,8 +374,6 @@ public class RedisStore {
         store.clear();
         expirationTimes.clear();
     }
-    
-    // Method for persistence support
     public Set<Map.Entry<String, RedisValue>> entrySet() {
         return store.entrySet();
     }

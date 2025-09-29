@@ -9,9 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Processes Redis commands and returns appropriate responses
- */
+
 public class CommandProcessor {
     private final RedisStore store;
     
@@ -35,7 +33,6 @@ public class CommandProcessor {
         
         try {
             switch (cmd) {
-                // String commands
                 case "SET":
                     handleSet(args, writer);
                     break;
@@ -58,7 +55,6 @@ public class CommandProcessor {
                     handleTTL(args, writer);
                     break;
                 
-                // Hash commands
                 case "HSET":
                     handleHset(args, writer);
                     break;
@@ -71,8 +67,7 @@ public class CommandProcessor {
                 case "HDEL":
                     handleHdel(args, writer);
                     break;
-                
-                // List commands
+            
                 case "LPUSH":
                     handleLpush(args, writer);
                     break;
@@ -89,7 +84,6 @@ public class CommandProcessor {
                     handleLrange(args, writer);
                     break;
                 
-                // Set commands
                 case "SADD":
                     handleSadd(args, writer);
                     break;
@@ -103,7 +97,6 @@ public class CommandProcessor {
                     handleSrem(args, writer);
                     break;
                 
-                // Sorted Set commands
                 case "ZADD":
                     handleZadd(args, writer);
                     break;
@@ -113,8 +106,7 @@ public class CommandProcessor {
                 case "ZRANGE":
                     handleZrange(args, writer);
                     break;
-                
-                // Server commands
+
                 case "PING":
                     handlePing(args, writer);
                     break;
@@ -133,7 +125,6 @@ public class CommandProcessor {
         }
     }
     
-    // String command handlers
     private void handleSet(List<RespParser.RespValue> args, RespWriter writer) {
         if (args.size() < 3) {
             writer.writeError("ERR wrong number of arguments for 'set' command");
