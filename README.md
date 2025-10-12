@@ -64,7 +64,69 @@ A Redis-compatible key-value store implementation in Java, supporting the Redis 
 - `INFO [section]` - Get server information
 - `FLUSHALL` - Remove all keys
 
-## Building and Running
+## Docker Usage (Recommended)
+
+### Prerequisites
+- Docker installed on your system
+
+### Build Docker Image
+```bash
+docker build -t mini-redis .
+```
+
+### Run Docker Container
+```bash
+docker run -p 6379:6379 mini-redis
+```
+
+### Connect to Redis Server
+Once the container is running, you can connect using:
+
+#### Option 1: Interactive Redis Client (Java)
+```bash
+# Compile and run the interactive client
+javac -cp target/classes src/main/java/com/redisclone/client/InteractiveRedisClient.java
+java -cp target/classes com.redisclone.client.InteractiveRedisClient
+```
+
+#### Option 2: Redis CLI (if installed)
+```bash
+redis-cli -p 6379
+```
+
+#### Option 3: Telnet/Netcat
+```bash
+telnet localhost 6379
+# or
+nc localhost 6379
+```
+
+### Example Commands in Interactive Client
+```
+SET mykey "Hello World"
+GET mykey
+SET username "alice"
+SET counter 100
+SET session "abc123" EX 300
+
+HSET user:1 name "John"
+HSET user:1 age 30
+HGETALL user:1
+
+LPUSH mylist "item1"
+LPUSH mylist "item2"
+LRANGE mylist 0 -1
+
+SADD myset "member1"
+SADD myset "member2"
+SMEMBERS myset
+
+KEYS *
+EXISTS mykey
+TTL session
+```
+
+## Building and Running (Local Development)
 
 ### Prerequisites
 - Java 11 or higher
