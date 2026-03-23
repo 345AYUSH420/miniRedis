@@ -24,6 +24,31 @@ public class RedisValue {
         this.value = value;
         this.expiresAt = Instant.now().plusSeconds(ttlSeconds);
     }
+
+    // Static Factory Methods
+    public static RedisValue string(String value) {
+        return new RedisValue(DataType.STRING, value);
+    }
+
+    public static RedisValue string(String value, long ttlSeconds) {
+        return new RedisValue(DataType.STRING, value, ttlSeconds);
+    }
+
+    public static RedisValue hash() {
+        return new RedisValue(DataType.HASH, new ConcurrentHashMap<String, String>());
+    }
+
+    public static RedisValue list() {
+        return new RedisValue(DataType.LIST, new CopyOnWriteArrayList<String>());
+    }
+
+    public static RedisValue set() {
+        return new RedisValue(DataType.SET, new CopyOnWriteArraySet<String>());
+    }
+
+    public static RedisValue sortedSet() {
+        return new RedisValue(DataType.SORTED_SET, new ConcurrentSkipListSet<ScoredMember>());
+    }
     
     public DataType getType() {
         return type;

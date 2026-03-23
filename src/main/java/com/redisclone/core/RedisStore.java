@@ -18,14 +18,14 @@ public class RedisStore {
     }
     
     public String set(String key, String value) {
-        store.put(key, new RedisValue(RedisValue.DataType.STRING, value));
+        store.put(key, RedisValue.string(value));
         expirationTimes.remove(key); // Clear any existing expiration
         return "OK";
     }
     
     public String set(String key, String value, long ttlSeconds) {
         Instant expiresAt = Instant.now().plusSeconds(ttlSeconds);
-        store.put(key, new RedisValue(RedisValue.DataType.STRING, value, ttlSeconds));
+        store.put(key, RedisValue.string(value, ttlSeconds));
         expirationTimes.put(key, expiresAt);
         return "OK";
     }
@@ -100,8 +100,9 @@ public class RedisStore {
         ConcurrentHashMap<String, String> hash;
         
         if (redisValue == null || redisValue.isExpired()) {
-            hash = new ConcurrentHashMap<>();
-            store.put(key, new RedisValue(RedisValue.DataType.HASH, hash));
+            redisValue = RedisValue.hash();
+            store.put(key, redisValue);
+            hash = redisValue.getHashValue();
         } else if (redisValue.getType() != RedisValue.DataType.HASH) {
             throw new ClassCastException("WRONGTYPE Operation against a key holding the wrong kind of value");
         } else {
@@ -150,8 +151,9 @@ public class RedisStore {
         CopyOnWriteArrayList<String> list;
         
         if (redisValue == null || redisValue.isExpired()) {
-            list = new CopyOnWriteArrayList<>();
-            store.put(key, new RedisValue(RedisValue.DataType.LIST, list));
+            redisValue = RedisValue.list();
+            store.put(key, redisValue);
+            list = redisValue.getListValue();
         } else if (redisValue.getType() != RedisValue.DataType.LIST) {
             throw new ClassCastException("WRONGTYPE Operation against a key holding the wrong kind of value");
         } else {
@@ -169,8 +171,9 @@ public class RedisStore {
         CopyOnWriteArrayList<String> list;
         
         if (redisValue == null || redisValue.isExpired()) {
-            list = new CopyOnWriteArrayList<>();
-            store.put(key, new RedisValue(RedisValue.DataType.LIST, list));
+            redisValue = RedisValue.list();
+            store.put(key, redisValue);
+            list = redisValue.getListValue();
         } else if (redisValue.getType() != RedisValue.DataType.LIST) {
             throw new ClassCastException("WRONGTYPE Operation against a key holding the wrong kind of value");
         } else {
@@ -229,8 +232,9 @@ public class RedisStore {
         CopyOnWriteArraySet<String> set;
         
         if (redisValue == null || redisValue.isExpired()) {
-            set = new CopyOnWriteArraySet<>();
-            store.put(key, new RedisValue(RedisValue.DataType.SET, set));
+            redisValue = RedisValue.set();
+            store.put(key, redisValue);
+            set = redisValue.getSetValue();
         } else if (redisValue.getType() != RedisValue.DataType.SET) {
             throw new ClassCastException("WRONGTYPE Operation against a key holding the wrong kind of value");
         } else {
@@ -282,8 +286,9 @@ public class RedisStore {
         ConcurrentSkipListSet<RedisValue.ScoredMember> sortedSet;
         
         if (redisValue == null || redisValue.isExpired()) {
-            sortedSet = new ConcurrentSkipListSet<>();
-            store.put(key, new RedisValue(RedisValue.DataType.SORTED_SET, sortedSet));
+            redisValue = RedisValue.sortedSet();
+            store.put(key, redisValue);
+            sortedSet = redisValue.getSortedSetValue();
         } else if (redisValue.getType() != RedisValue.DataType.SORTED_SET) {
             throw new ClassCastException("WRONGTYPE Operation against a key holding the wrong kind of value");
         } else {
