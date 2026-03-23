@@ -13,7 +13,8 @@ public class RedisStoreTest {
     
     @BeforeEach
     void setUp() {
-        store = new RedisStore();
+        store = RedisStore.getInstance();
+        store.clear();
     }
     
     @Test

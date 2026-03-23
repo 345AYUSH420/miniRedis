@@ -12,9 +12,19 @@ public class RedisStore {
     private final ConcurrentHashMap<String, RedisValue> store;
     private final ConcurrentHashMap<String, Instant> expirationTimes;
     
-    public RedisStore() {
+    // Private constructor for Singleton
+    private RedisStore() {
         this.store = new ConcurrentHashMap<>();
         this.expirationTimes = new ConcurrentHashMap<>();
+    }
+    
+    // Bill Pugh Singleton Implementation
+    private static class SingletonHelper {
+        private static final RedisStore INSTANCE = new RedisStore();
+    }
+    
+    public static RedisStore getInstance() {
+        return SingletonHelper.INSTANCE;
     }
     
     public String set(String key, String value) {

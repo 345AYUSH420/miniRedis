@@ -22,7 +22,7 @@ public class RedisServer {
     
     public RedisServer(int port) {
         this.port = port;
-        this.store = new RedisStore();
+        this.store = RedisStore.getInstance();
         this.commandProcessor = new CommandProcessor(store);
         this.persistenceManager = new PersistenceManager("./data");
         
